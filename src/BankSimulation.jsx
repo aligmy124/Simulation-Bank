@@ -33,8 +33,6 @@ const BankSimulation = () => {
 
       serverServiceDurations[server].push(newDuration);
 
-      const averageDuration = serverServiceDurations[server].reduce((a, b) => a + b, 0) / serverServiceDurations[server].length || 0;
-
       const arrivalTime = customers.length > 0 
         ? new Date(customers[customers.length - 1].arrivalTime.getTime() + newIntervalTime * 1000)
         : new Date();
@@ -151,82 +149,86 @@ const BankSimulation = () => {
   };
 
   return (
-    <div className="card shadow p-4">
+    <div className="card shadow p-4 container-responsive">
       <h1 className="text-center">Bank Simulation</h1>
       <form onSubmit={addCustomer} className="mb-4">
-        <div className="mb-3">
-          <label className="form-label">Customer Name</label>
-          <input
-            type="text"
-            className="form-control"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Duration (minutes)</label>
-          <input
-            type="number"
-            className="form-control"
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Interarrival Time (seconds)</label>
-          <input
-            type="number"
-            className="form-control"
-            value={intervalTime}
-            onChange={(e) => setIntervalTime(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Server</label>
-          <select className="form-select" value={server} onChange={(e) => setServer(e.target.value)}>
-            <option value="sr01">Server 01</option>
-            <option value="sr02">Server 02</option>
-          </select>
+        <div className="row">
+          <div className="col-12 col-md-6 mb-3">
+            <label className="form-label">Customer Name</label>
+            <input
+              type="text"
+              className="form-control"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="col-12 col-md-6 mb-3">
+            <label className="form-label">Duration (minutes)</label>
+            <input
+              type="number"
+              className="form-control"
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              required
+            />
+          </div>
+          <div className="col-12 col-md-6 mb-3">
+            <label className="form-label">Interarrival Time (seconds)</label>
+            <input
+              type="number"
+              className="form-control"
+              value={intervalTime}
+              onChange={(e) => setIntervalTime(e.target.value)}
+              required
+            />
+          </div>
+          <div className="col-12 col-md-6 mb-3">
+            <label className="form-label">Server</label>
+            <select className="form-select" value={server} onChange={(e) => setServer(e.target.value)}>
+              <option value="sr01">Server 01</option>
+              <option value="sr02">Server 02</option>
+            </select>
+          </div>
         </div>
         <button type="submit" className="btn btn-primary">Add Customer</button>
       </form>
 
       <h2>Simulation Table</h2>
-      <table className="table table-striped">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Customer</th>
-            <th>Arrival</th>
-            <th>Duration</th>
-            <th>Server</th>
-            <th>Start Time</th>
-            <th>End Time</th>
-            <th>Waiting Time</th>
-            <th>Service Time</th>
-            <th>Interarrival Time (seconds)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {simulationTable.map((item) => (
-            <tr key={item.id}>
-              <td>{item.id}</td>
-              <td>{item.customer}</td>
-              <td>{item.arrival}</td>
-              <td>{item.duration}</td>
-              <td>{item.server}</td>
-              <td>{item.startTime}</td>
-              <td>{item.endTime}</td>
-              <td>{item.waitingTime.toFixed(2)}</td>
-              <td>{item.serviceTime.toFixed(2)}</td>
-              <td>{item.interarrivalTime}</td>
+      <div className="table-responsive">
+        <table className="table table-striped">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Customer</th>
+              <th>Arrival</th>
+              <th>Duration</th>
+              <th>Server</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              <th>Waiting Time</th>
+              <th>Service Time</th>
+              <th>Interarrival Time (seconds)</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {simulationTable.map((item) => (
+              <tr key={item.id}>
+                <td>{item.id}</td>
+                <td>{item.customer}</td>
+                <td>{item.arrival}</td>
+                <td>{item.duration}</td>
+                <td>{item.server}</td>
+                <td>{item.startTime}</td>
+                <td>{item.endTime}</td>
+                <td>{item.waitingTime.toFixed(2)}</td>
+                <td>{item.serviceTime.toFixed(2)}</td>
+                <td>{item.interarrivalTime}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <button className="btn btn-success mb-3" onClick={exportToExcel}>Export to Excel</button>
 
@@ -238,7 +240,7 @@ const BankSimulation = () => {
       <p>Server Utilization: {performanceMetrics.serverUtilization.toFixed(2)}</p>
 
       <h2>Time Analysis Chart</h2>
-      <div className="my-4">
+      <div className="my-4 chart-container">
         <Bar data={chartData} options={{
           responsive: true,
           plugins: {

@@ -1,0 +1,16 @@
+.container-responsive {
+    max-width: 100%;
+    padding: 0 15px;
+  }
+  
+  .chart-container {
+    max-width: 100%;
+    overflow: auto;
+  }
+  
+  @media (max-width: 768px) {
+    .row > .col-12 {
+      margin-bottom: 15px;
+    }
+  }
+  
