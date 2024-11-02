@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Bar } from 'react-chartjs-2';
+import * as XLSX from 'xlsx';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -36,7 +37,7 @@ const BankSimulation = () => {
 
       const arrivalTime = customers.length > 0 
         ? new Date(customers[customers.length - 1].arrivalTime.getTime() + newIntervalTime * 1000)
-        : new Date(); // استخدام الوقت الحالي كوقت الوصول
+        : new Date();
 
       const newCustomer = {
         id: customers.length + 1,
@@ -45,7 +46,7 @@ const BankSimulation = () => {
         duration: newDuration,
         server: server,
         interarrivalTime: newIntervalTime,
-        arrivalTime, // تأكد من أنه كائن Date
+        arrivalTime,
       };
 
       setCustomers([...customers, newCustomer]);
@@ -66,13 +67,13 @@ const BankSimulation = () => {
     let currentTime = 0;
     return customers.map((item) => {
       const arrivalTimeInMinutes = item.arrivalTime.getHours() * 60 + item.arrivalTime.getMinutes();
-      const startTime = Math.max(currentTime, arrivalTimeInMinutes); // البدء في الوقت الحالي أو وقت الوصول
-      const endTime = startTime + item.duration; // وقت الانتهاء هو وقت البدء زائد المدة
+      const startTime = Math.max(currentTime, arrivalTimeInMinutes);
+      const endTime = startTime + item.duration;
 
-      const waitingTime = Math.max(0, startTime - arrivalTimeInMinutes); // تأكد من أن وقت الانتظار لا يكون سالباً
-      const serviceTime = item.duration; // وقت الخدمة هو نفس المدة
+      const waitingTime = Math.max(0, startTime - arrivalTimeInMinutes);
+      const serviceTime = item.duration;
 
-      currentTime = endTime; // تحديث الوقت الحالي
+      currentTime = endTime;
 
       return {
         ...item,
@@ -88,12 +89,11 @@ const BankSimulation = () => {
     const totalWaitingTime = simulationTable.reduce((acc, item) => acc + item.waitingTime, 0);
     const totalServiceTime = simulationTable.reduce((acc, item) => acc + item.serviceTime, 0);
     
-    // حساب Average Interarrival Time
     const interarrivalTimes = [];
     for (let i = 1; i < simulationTable.length; i++) {
         const arrivalTimeCurrent = new Date(simulationTable[i].arrivalTime).getTime();
         const arrivalTimePrevious = new Date(simulationTable[i - 1].arrivalTime).getTime();
-        const interarrivalTime = (arrivalTimeCurrent - arrivalTimePrevious) / 1000; // ثواني
+        const interarrivalTime = (arrivalTimeCurrent - arrivalTimePrevious) / 1000;
         interarrivalTimes.push(interarrivalTime);
     }
     
@@ -107,7 +107,6 @@ const BankSimulation = () => {
 
     const totalTimeSpent = totalWaitingTime + totalServiceTime;
     
-    // حساب Server Utilization
     const serverUtilization = totalServiceTime > 0 ? totalServiceTime / totalTimeSpent : 0;
 
     return {
@@ -117,11 +116,17 @@ const BankSimulation = () => {
         totalTimeSpent,
         serverUtilization,
     };
-};
-
+  };
 
   const simulationTable = buildSimulationTable();
   const performanceMetrics = calculatePerformanceMetrics(simulationTable);
+
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(simulationTable);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Simulation Data");
+    XLSX.writeFile(workbook, "SimulationData.xlsx");
+  };
 
   const chartData = {
     labels: simulationTable.map(item => item.customer),
@@ -130,7 +135,7 @@ const BankSimulation = () => {
         label: 'Start Time (minutes)',
         data: simulationTable.map(item => {
           const [hours, minutes] = item.startTime.split(':').map(Number);
-          return hours * 60 + minutes; // تحويل إلى دقائق
+          return hours * 60 + minutes;
         }),
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
       },
@@ -138,7 +143,7 @@ const BankSimulation = () => {
         label: 'End Time (minutes)',
         data: simulationTable.map(item => {
           const [hours, minutes] = item.endTime.split(':').map(Number);
-          return hours * 60 + minutes; // تحويل إلى دقائق
+          return hours * 60 + minutes;
         }),
         backgroundColor: 'rgba(255, 99, 132, 0.6)',
       },
@@ -223,6 +228,8 @@ const BankSimulation = () => {
         </tbody>
       </table>
 
+      <button className="btn btn-success mb-3" onClick={exportToExcel}>Export to Excel</button>
+
       <h2>Performance Metrics</h2>
       <p>Average Waiting Time: {performanceMetrics.averageWaitingTime.toFixed(2)} minutes</p>
       <p>Average Service Time: {performanceMetrics.averageServiceTime.toFixed(2)} minutes</p>
@@ -250,4 +257,3 @@ const BankSimulation = () => {
 };
 
 export default BankSimulation;
-// hhh
